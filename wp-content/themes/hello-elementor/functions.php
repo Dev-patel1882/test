@@ -212,20 +212,7 @@ if ( ! function_exists( 'hello_elementor_body_open' ) ) {
 }
 
 
-// database connerction
 
-$servername = "localhost"; // Replace with your MySQL server name.
-$username = "root"; // Replace with your MySQL username.
-$password = "root"; // Replace with your MySQL password.
-$dbname = "wp_test"; // Replace with your MySQL database name.
-
-// Create a MySQL connection.
-$conn = new mysqli( $servername, $username, $password, $dbname );
-
-// Check connection.
-if ( $conn->connect_error ) {
-    die( "Connection failed: " . $conn->connect_error );
-}
 
 
 
