@@ -1,6 +1,4 @@
 $(document).ready(function(){
-
-
 	// this function are used to add new member data
 	$(document).on("submit","#add_member",function(e){
 		e.preventDefault();
@@ -21,43 +19,29 @@ $(document).ready(function(){
 			       number:number
 			    } ,
 			success: function (response) {
-				
 	               var json_msg = JSON.parse(response);
 	               var msg = json_msg.msg;
-
 	               if(msg == "success"){
-                         $('input[type="text"],textarea').val('');
+					  $('input[type="text"],textarea').val('');
                       $('#addmember').modal('hide');
-
-                      $( "#example" ).load( location.href + " #example" );
-	               	  alert("recoards are success added");
-	               	   
-
+					  $("#create-alert").removeClass('d-none');
+                      $( "#example" ).load( location.href + " #example", () => {
+						$("#create-alert").addClass('d-none');;
+					  });
 	               }else if(msg == "email are already exists"){
-                      $("#email_error").html(msg);  
-
+                      $("#email_error").html(msg);
 	               }
-	               
-				   
-			},error: function(jqXHR, textStatus, errorThrown) {
-				console.log(textStatus, errorThrown);
 			}
 		   });
        }
-       
-       
 	});
-
 
     // this function are used to edit data
 	$(document).on("click","#edit",function(){
 		var id = $(this).attr("data-id");
 		var email = $(this).attr("data-email");
 		var number = $(this).attr("data-number");
-		
-
-
-        $("#edit_id").val(id);
+		$("#edit_id").val(id);
 		$("#edit_email").val(email);
 		$("#edit_mem_num").val(number);
 	});
@@ -71,7 +55,6 @@ $(document).ready(function(){
 		var id = $("#edit_id").val();
 		var email = $("#edit_email").val();
 		var number = $("#edit_mem_num").val();
-       
          $.ajax({
 			url: '../wp-admin/admin-ajax.php',
 		    type: "post",
@@ -84,24 +67,13 @@ $(document).ready(function(){
 			success: function (response) {
                  $('#editmember').modal('hide');
 				 var json_msg = JSON.parse(response);
-	             var msg = json_msg.msg;
-				 if(msg == "membership are successfully updated"){
-                   alert(msg);
-                    $('#editmember').modal('hide');
-
-                    $( "#example" ).load( location.href + " #example" );
-
-
-                    
-                   
-				}
-				
-	               
-				   
-			},error: function(jqXHR, textStatus, errorThrown) {
-				console.log(textStatus, errorThrown);
+				 $('#editmember').modal('hide');
+				 $("#update-alert").removeClass('d-none');
+				 $( "#example" ).load( location.href + " #example", () => {
+					 $("#update-alert").addClass('d-none');
+				 });
 			}
-		   });
+	   });
 
 	});
 
@@ -110,60 +82,41 @@ $(document).ready(function(){
 
 	$(document).on("click","#delete",function(){
 		var del_id = $(this).attr("data-id");
-
-
-
-		$.ajax({
-            type: "POST",
-            url: '../wp-admin/admin-ajax.php',
-            dataType: 'text',
-            data: { action: 'delete_member' , id: del_id},
-            success: function(response){
-               var json_msg = JSON.parse(response);
-	           var msg = json_msg.msg;
-               if(msg == "recoard are successfully deleted"){
-                 	alert(msg);
-                 	$( "#example" ).load( location.href + " #example" );
-               }
-            }
-          });
+		deleteMembership({id: del_id});
 	});
 
+	function deleteMembership(data) {
+		$("#delete_membership_model").modal('show');
+		var deleteBtn = document.getElementById("approve-membership-delete");
+		deleteBtn.addEventListener("click", function () {
+			$.ajax({
+				type: "POST",
+				url: '../wp-admin/admin-ajax.php',
+				data: data,
+				success: function(response){
+					var json_msg = JSON.parse(response);
+					var msg = json_msg.msg;
+					$("#delete_membership_model").modal('hide');
+					$("#delete-alert").removeClass('d-none');
+					$( "#example" ).load( location.href + " #example", () => {
+						$("#delete-alert").addClass('d-none');
+					});
+				}
+			});
+		});
+	}
 
-
-	$(document).on("click","#save_value",function(){
+	$(document).on("click","#multi-delete-btn",function(){
 		var DeleteIDs = $(':checkbox:checked').map(function(){
             return $(this).val();
-        });
-
-        $.ajax({
-				url: "../wp-admin/admin-ajax.php",
-				type: "post",
-				data: {data:DeleteIDs.get().join()} ,
-				success: function (response) {
-	                var json_msg = JSON.parse(response);
-                  var msg = json_msg.msg;
-                  if(msg == "Recoards are successfully deleted"){
-                     alert(msg);
-                     $( "#example" ).load( location.href + " #example" );
-                       
-                  }
-	                
-				   
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-				   console.log(textStatus, errorThrown);
-				}
-		   });
+        }).get();
+		if (DeleteIDs.length > 0) {
+			deleteMembership({data: DeleteIDs.join()})
+		}
 	});
 
 	$(document).ready(function () {
-              $('#example').DataTable();
+		  $('#example').DataTable();
     });
 
-
-   
-
-
-    
-})
+});

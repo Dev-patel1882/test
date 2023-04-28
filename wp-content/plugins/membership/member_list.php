@@ -1,30 +1,27 @@
-
-
 <?php
 
-
-
-
-
-function delete_member(){
-  
-  if(isset($_POST['id'])){
+function delete_member() {
+  if(isset($_POST['id'])) {
      $id = $_POST['id'];
      global $wpdb;
 
      $table_name = $wpdb->prefix . "membership";
-     $wpdb->query( 
-              "DELETE FROM $table_name
-               WHERE id = $id;
-              "       
-          );
-
+     deleteMemberFromMemberShip($id, $table_name);
      $msg = array("msg"=>"recoard are successfully deleted");
      echo json_encode($msg);
      exit;
   }
 
 }
+
+function deleteMemberFromMemberShip($id, $tableName) {
+    global $wpdb;
+    $whereCondition = " WHERE id IN (". $id .")";
+    $wpdb->query(
+        "DELETE FROM $tableName".$whereCondition
+    );
+}
+
 delete_member();
 
 // this code in get post request data and update membership table
@@ -46,7 +43,7 @@ if(isset($_POST['update_email'])){
 // this function are used to get post request data and add new member
 
 	if(isset($_POST['addmember'])){
-       $email = $_POST['email'];
+       $email = trim($_POST['email']);
        $number = $_POST['number'];
      
        global $wpdb;
@@ -76,39 +73,21 @@ if(isset($_POST['update_email'])){
          
          exit();
        }
-
-        
-
 	}
-	
-
-
-
 
 // this function are used to multiple recodards delete the membership table data
-if(isset($_POST['data'])){
+if(isset($_POST['data'])) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . "membership";
+    $ids_str = $_POST['data'];
+    $array = explode(' ', $ids_str);
+    $ids = implode(",", $array);
+    deleteMemberFromMemberShip($ids, $table_name);
+    $msg = array("msg"=>"Recoards are successfully deleted");
+    echo json_encode($msg);
+    exit;
 
-$table_name = $wpdb->prefix . "membership";
-
-           $ids_str = $_POST['data'];
-          
-          $array = explode(' ', $ids_str);
-           
-          
-           $ids = implode(",", $array);
-          
-          
-           $wpdb->query( 
-	            "DELETE FROM $table_name
-	             WHERE id IN($ids)
-	            "       
-	        );
-
-          $msg = array("msg"=>"Recoards are successfully deleted");
-          echo json_encode($msg);
-          exit;
-           
-        }
+}
 
 
 
@@ -124,11 +103,8 @@ function parse_csv( $file ) {
     return $csv_data;
 }
 
-
-
-
 // this code are used to add csv file and update csv file
-if(isset($_POST['submit'])){
+if(isset($_POST['submit'])) {
        global $wpdb;
        $table_name = $wpdb->prefix . "membership";
        
@@ -136,40 +112,26 @@ if(isset($_POST['submit'])){
         
        $csv_data = parse_csv( $file );
 
-
-
        foreach ( $csv_data as $data ) {
-       $existing_row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE email = %s AND number = %s", $row[0], $row[1] ) );
-
-             
-          if ( $existing_row ) {
-              // The row already exists, so skip it
-              continue;
-          } else {
+           $existing_row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE email ='". $data[0]."'" ) );
+           if ( $existing_row ) {
+               $id = $existing_row->id;
+               $number = $data[1];
+               $wpdb->query($wpdb->prepare("UPDATE $table_name SET number=$number WHERE id=$id"));
+           } else {
               // The row does not exist, so insert it into the database
               $wpdb->insert(
                 $table_name,
                 array(
-                    
                     'email' => $data[0],
                     'number' => $data[1],
                 )
-            );
+              );
           }
-     
-         }   
-            
-
-  }
-
-      
-     
-       
-       
-   
+       }
+}
 
 function member_list() {
-     
 
     ?>
     
@@ -191,13 +153,13 @@ function member_list() {
 
 
     <div class="wrap">
-        
+
 
 
         <div class="row mt-4 mb-4">
         	<div class="col-sm-3 mt-4">
         		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadcsvModal">import csv file</button>
-        		<input type="button" id="save_value" name="save_value" value="Delete" class="btn btn-danger" />
+        		<input type="button" id="multi-delete-btn" name="save_value" value="Delete" class="btn btn-danger" />
 
         	</div>
           <div class="col-sm-3 mt-4">
@@ -219,6 +181,15 @@ function member_list() {
 
         $rows = $wpdb->get_results("SELECT id,email,number from $table_name");
         ?>
+        <div class="alert alert-danger d-none" id="delete-alert">
+            <strong>Success!</strong> Deleted Membership.
+        </div>
+        <div class="alert alert-info d-none" id="update-alert">
+            <strong>Success!</strong> Updated Membership.
+        </div>
+        <div class="alert alert-success d-none" id="create-alert">
+            <strong>Success!</strong> Created Membership.
+        </div>
         <table class='wp-list-table widefat fixed striped posts table table-hover' id="example">
             <thead>
 		    <tr>
@@ -335,7 +306,28 @@ function member_list() {
   </div>
 </div>
 <!-- end -->
-
+<!--Delete modal start-->
+    <div id="delete_membership_model" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h6 class="modal-title text-white">Delete Membership</h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete?</p>
+                    <hr>
+                  </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn bg-danger text-white" id="approve-membership-delete">Approve the Deletion</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Delete modal end-->
 
 <!-- update modeal -->
 <div class="modal fade" id="editmember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
