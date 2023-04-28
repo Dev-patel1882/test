@@ -134,8 +134,14 @@ if(isset($_POST['submit'])) {
 function member_list() {
 
     ?>
-    
+    <style>
+        #example_filter {
+            text-align: right;
+        }
+    </style>
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap4.min.css" crossorigin="anonymous">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css" crossorigin="anonymous">
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
      
 
@@ -153,27 +159,19 @@ function member_list() {
 
 
     <div class="wrap">
-
-
-
-        <div class="row mt-4 mb-4">
-        	<div class="col-sm-3 mt-4">
-        		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadcsvModal">import csv file</button>
-        		<input type="button" id="multi-delete-btn" name="save_value" value="Delete" class="btn btn-danger" />
-
-        	</div>
-          <div class="col-sm-3 mt-4">
-          
-            <a class="btn btn-success" href="../wp-content/plugins/membership/membership.csv" download>
-              Download sample CSV
-            </a>
-
-          </div>
-        	<div class="col-sm-3 mt-4">
-        		<button type="button" class="btn btn-info text-light" data-toggle="modal" data-target="#addmember" >Add new member</button>
-        		
-        	</div>
-        	
+       <div class=" mt-4 mb-4">
+           <div class="row col-md-12 d-flex justify-content-between m-0 p-0">
+               <div class="col-md-4 m-0 p-0">
+                   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadcsvModal">import csv file</button>
+                   <a class="btn btn-success" href="../wp-content/plugins/membership/membership.csv">
+                       Download sample CSV
+                   </a>
+               </div>
+               <div class="col-md-8 m-0 p-0 text-right">
+                   <button id="multi-delete-btn" name="save_value" value="Delete" class="btn btn-danger">Multiple Delete</button>
+                   <button type="button" class="btn btn-success text-white" data-toggle="modal" data-target="#addmember" >Add new member</button>
+               </div>
+           </div>
         </div>
         <?php
         global $wpdb;
@@ -190,12 +188,12 @@ function member_list() {
         <div class="alert alert-success d-none" id="create-alert">
             <strong>Success!</strong> Created Membership.
         </div>
-        <table class='wp-list-table widefat fixed striped posts table table-hover' id="example">
+        <table class='wp-list-table widefat fixed striped posts table table-hover' id="membership-table">
             <thead>
 		    <tr>
-		      <th scope="col">#</th>
-		      <th>Multiple Delete</th>
-		     
+                <th>Multiple Delete</th>
+                <th scope="col">#</th>
+
 		      <th scope="col">Email</th>
 		      <th scope="col">Membership Number</th>
 		      
@@ -208,13 +206,14 @@ function member_list() {
 		   <?php foreach ($rows as $row) {  $sno++;?>
 		    
 		    <tr id="empids<?php echo $row->id; ?>">
-		      <th scope="row"><?php echo $sno ?></th>
-		       <td>
-		        <div class="form-check">
-				  <input name="selector[]" class="form-check-input" type="checkbox" value="<?php echo $row->id; ?>" id="ID-<?php echo $row->id; ?>">
-				  
-				</div>
-		      </td>
+                <td>
+                    <div class="form-check">
+                        <input name="selector[]" class="form-check-input bulk-delete-checkbox" type="checkbox" value="<?php echo $row->id; ?>" id="ID-<?php echo $row->id; ?>">
+
+                    </div>
+                </td>
+		      <td scope="row"><?php echo $sno ?></td>
+
 		      <td><?php echo $row->email; ?></td>
 		      <td><?php echo $row->number; ?></td>
 		      
@@ -226,14 +225,8 @@ function member_list() {
 		     
 		    </tr>
                  <?php } ?>
-            
-        
-           
-           
         </table>
     </div>
-
-
 
  <!-- upload csv file bootstrap modal -->
 
@@ -318,8 +311,7 @@ function member_list() {
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete?</p>
-                    <hr>
-                  </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn bg-danger text-white" id="approve-membership-delete">Approve the Deletion</button>
