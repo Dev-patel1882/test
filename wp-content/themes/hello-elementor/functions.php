@@ -235,54 +235,39 @@ function validate_membership_number( $validation_result, $form ) {
 
     if ( $wpdb->num_rows > 0 ) {
        // member not exist
-        
     }else{
-    	
-        
-        
     	$validation_result['is_valid'] = false;
         $validation_result['form']['fields'][1]['failed_validation'] = true; 
         $validation_result['form']['fields'][1]['validation_message'] = 'Your membership number will be send in your email address.';
-        
-
-        
-
         ?>
            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
            <script type="text/javascript">
-               
-                 
+				var emailPrompt = prompt('Enter Your Email address');
+				if (emailPrompt !== null) {
+					$.ajax({
+						type: 'POST',
+						url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
+						data: {email: email_id,action:'get_membership_id'},
+						success: function(response) {
+							var json_msg = JSON.parse(response);
+							var msg = json_msg.msg;
 
-           	    let email_id = prompt('Enter Your Email address');
-			      
+							if(msg == "membership number are successs sent your mail id"){
+								alert(msg)
 
-                  $.ajax({
-				    type: 'POST',
-				    url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
-				    data: {email: email_id,action:'get_membership_id'},
-				    success: function(response) {
-				         var json_msg = JSON.parse(response);
-	                     var msg = json_msg.msg;
-                        
-	                     if(msg == "membership number are successs sent your mail id"){
-                             alert(msg)
+							}else if(msg == "email are invalid"){
+								alert(msg);
 
-	                     }else if(msg == "email are invalid"){
-	                     	alert(msg);
- 							
-	                     }
-				    }
-			    });	
-               
-              
-
-			   
+							}
+						}
+					});
+				}
            </script> 
        
-           <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -382,32 +367,26 @@ get_membership_id();
   <script type="text/javascript">
   	 $(document).ready(function(){
   	 	$(document).on('click',"#test",function(){
-  	 		let email_id = prompt('Enter Your Email address');
-			      
+  	 		let email_id = window.prompt('Enter Your Email address');
+			   if (email_id !== null) {
+				   $.ajax({
+					   type: 'POST',
+					   url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
+					   data: {email: email_id,action:'get_membership_id'},
+					   success: function(response) {
+						   var json_msg = JSON.parse(response);
+						   var msg = json_msg.msg;
 
-                  $.ajax({
-				    type: 'POST',
-				    url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
-				    data: {email: email_id,action:'get_membership_id'},
-				    success: function(response) {
-				         var json_msg = JSON.parse(response);
-	                     var msg = json_msg.msg;
-
-	                     if(msg == "membership number are successs sent your mail id"){
-	                     	alert(msg); 
-	                     	
-			                  
-                            
-	                     }else if(msg == "email are invalid"){
-	                     	alert(msg);
-                             
-	                     
-                            
-	                     }
-				    }
-			    });	
-  	 	})
-  	 })
+						   if(msg == "membership number are successs sent your mail id"){
+							   alert(msg);
+						   }else if(msg == "email are invalid"){
+							   alert(msg);
+						   }
+					   }
+				   });
+			   }
+  	 	});
+  	 });
   </script>
 <?php
 
