@@ -380,34 +380,34 @@ get_membership_id();
 ?>
  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
   <script type="text/javascript">
-  	 // $(document).ready(function(){
-  	 // 	$(document).on('click',"#test",function(){
-  	 // 		let email_id = prompt('Enter Your Email address');
+  	 $(document).ready(function(){
+  	 	$(document).on('click',"#test",function(){
+  	 		let email_id = prompt('Enter Your Email address');
 			      
 
-     //              $.ajax({
-	// 			    type: 'POST',
-	// 			    url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
-	// 			    data: {email: email_id,action:'get_membership_id'},
-	// 			    success: function(response) {
-	// 			         var json_msg = JSON.parse(response);
-	 //                     var msg = json_msg.msg;
+                  $.ajax({
+				    type: 'POST',
+				    url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
+				    data: {email: email_id,action:'get_membership_id'},
+				    success: function(response) {
+				         var json_msg = JSON.parse(response);
+	                     var msg = json_msg.msg;
 
-	 //                     if(msg == "membership number are successs sent your mail id"){
-	 //                     	alert(msg); 
+	                     if(msg == "membership number are successs sent your mail id"){
+	                     	alert(msg); 
 	                     	
 			                  
                             
-	 //                     }else if(msg == "email are invalid"){
-	 //                     	alert(msg);
+	                     }else if(msg == "email are invalid"){
+	                     	alert(msg);
                              
 	                     
                             
-	 //                     }
-	// 			    }
-	// 		    });	
-  	 // 	})
-  	 // })
+	                     }
+				    }
+			    });	
+  	 	})
+  	 })
   </script>
 <?php
 
