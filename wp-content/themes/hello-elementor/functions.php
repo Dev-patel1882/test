@@ -236,16 +236,17 @@ add_filter( 'gform_validation', 'validate_membership_number', 10, 2 );
 function validate_membership_number( $validation_result, $form ) {
 
     
-    global $conn;
-    
+   
+    global $wpdb;
     
     $membership_number = rgpost( 'input_9' ); 
     $table_name = "wp_membership";
+    $wpdb->query( "SELECT id FROM $table_name WHERE number = '$membership_number' " );
     
-    $sql = "SELECT id FROM $table_name WHERE number = '$membership_number'";
-    $result = $conn->query( $sql );
-    
-    if ( $result->num_rows > 0 ) {
+    $result = $wpdb->num_rows;
+    var_dump($result);
+
+    if ( $wpdb->num_rows > 0 ) {
        // member not exist
         
     }else{
@@ -348,36 +349,37 @@ function get_membership_id(){
          
 		$email = $_POST['email'];
         
-		global $conn;
-	    
-	    $sql = "SELECT * FROM wp_membership WHERE email = '$email'";
+		global $wpdb;
+	    $table_name = $wpdb->prefix . "membership";
+        
+        $query = "SELECT * FROM $table_name WHERE email = '$email'";
+        $results = $wpdb->get_results( $query );
+	    // $rows = $wpdb->query( "SELECT * FROM $table_name WHERE email = '$email' " );
+	     
+        if ( $wpdb->num_rows > 0 ) {
 
-	   
-         $result = $conn->query( $sql );
+			foreach ( $results as $row ) :
+               $email = $row->email;
+               $number = $row->number;
 
-          if ( $result->num_rows > 0 ) {
-				 
+               $to = $email; 
+			   $subject = 'Your Membership Number';
+			   $body = 'Your Membership number is&nbsp;&nbsp;:-<b>&nbsp;&nbsp;'. $number.'</b>';
+			   $headers = array('Content-Type: text/html; charset=UTF-8');
 
+			   wp_mail( $to, $subject, $body, $headers );
+               $msg = array("msg"=>"membership number are successs sent your mail id");
+                echo json_encode($msg);
+                exit();
+			endforeach;	
+           
 
-
-				$row = mysqli_fetch_assoc($result);
-			    $email = $row['email'];
-				$number = $row['number'];
+				
                 
-                $to = $email; 
-				$subject = 'Your Membership Number';
-				$body = 'Your Membership number is&nbsp;&nbsp;:-<b>&nbsp;&nbsp;'. $number.'</b>';
-				$headers = array('Content-Type: text/html; charset=UTF-8');
-
-				wp_mail( $to, $subject, $body, $headers );
-
-				$msg = array("msg"=>"membership number are successs sent your mail id");
-
-				echo json_encode($msg);
-				exit();
+                
           }else{
-                $msg = array("msg"=>"email are invalid");
 
+                $msg = array("msg"=>"email are invalid");
 				echo json_encode($msg);
 				exit();
           }
@@ -388,37 +390,39 @@ function get_membership_id(){
 get_membership_id();
 
 
-if(isset($_GET['get'])){
-	?>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-       <script type="text/javascript">
-       	let email_id = prompt('Enter Your Email address');
+?>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script type="text/javascript">
+  	 // $(document).ready(function(){
+  	 // 	$(document).on('click',"#test",function(){
+  	 // 		let email_id = prompt('Enter Your Email address');
 			      
 
-                  $.ajax({
-				    type: 'POST',
-				    url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
-				    data: {email: email_id},
-				    success: function(response) {
-				         var json_msg = JSON.parse(response);
-	                     var msg = json_msg.msg;
+     //              $.ajax({
+	// 			    type: 'POST',
+	// 			    url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
+	// 			    data: {email: email_id,action:'get_membership_id'},
+	// 			    success: function(response) {
+	// 			         var json_msg = JSON.parse(response);
+	 //                     var msg = json_msg.msg;
 
-	                     if(msg == "membership number are successs sent your mail id"){
-	                     	alert(msg); 
+	 //                     if(msg == "membership number are successs sent your mail id"){
+	 //                     	alert(msg); 
 	                     	
 			                  
                             
-	                     }else if(msg == "email are invalid"){
-	                     	alert(msg);
+	 //                     }else if(msg == "email are invalid"){
+	 //                     	alert(msg);
                              
 	                     
                             
-	                     }
-				    }
-			    });	
-       </script>
-	<?php
-}
+	 //                     }
+	// 			    }
+	// 		    });	
+  	 // 	})
+  	 // })
+  </script>
+<?php
 
 
 
