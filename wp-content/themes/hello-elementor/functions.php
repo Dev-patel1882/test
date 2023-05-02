@@ -212,7 +212,9 @@ if ( ! function_exists( 'hello_elementor_body_open' ) ) {
 }
 ?>
 	<?php
-add_filter( 'gform_validation', 'validate_membership_number', 10, 2 );
+if ($_POST['gfield-choice-input'] == 'member') {
+	add_filter( 'gform_validation', 'validate_membership_number', 10, 2 );
+}
 function validate_membership_number( $validation_result, $form ) {
     global $wpdb;
     $membership_number = rgpost( 'input_9' ); 
@@ -232,7 +234,9 @@ function validate_membership_number( $validation_result, $form ) {
 
     return $validation_result;
 }
-
+if ($_POST['action'] == 'get_membership_id') {
+	get_membership_id();
+}
 function get_membership_id(){
 	
 	
@@ -275,7 +279,6 @@ function get_membership_id(){
 	}
 }
 
-get_membership_id();
 ?>
 <?php
 
