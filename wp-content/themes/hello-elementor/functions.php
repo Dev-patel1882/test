@@ -212,7 +212,7 @@ if ( ! function_exists( 'hello_elementor_body_open' ) ) {
 }
 ?>
 	<?php
-if ($_POST['gfield-choice-input'] == 'member') {
+if ($_POST['input_8'] == 'Member') {
 	add_filter( 'gform_validation', 'validate_membership_number', 10, 2 );
 }
 function validate_membership_number( $validation_result, $form ) {
