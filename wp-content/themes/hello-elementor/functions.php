@@ -211,11 +211,6 @@ if ( ! function_exists( 'hello_elementor_body_open' ) ) {
 	}
 }
 ?>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
 	<?php
 add_filter( 'gform_validation', 'validate_membership_number', 10, 2 );
 function validate_membership_number( $validation_result, $form ) {
@@ -265,8 +260,9 @@ function get_membership_id(){
 			   $headers = array('Content-Type: text/html; charset=UTF-8');
 
 			   wp_mail( $to, $subject, $body, $headers );
-               $msg = array("msg"=>"membership number are successs sent your mail id");
+               $msg = array("msg"=>"membership number are successfully sent your mail id");
                 echo json_encode($msg);
+				exit();
 			endforeach;
 
           }else{
@@ -281,58 +277,6 @@ function get_membership_id(){
 
 get_membership_id();
 ?>
-  <script type="text/javascript">
-  	 $(document).ready(function(){
-  	 	$(document).on('click',"#test",function(){
-			openModal();
-  	 	});
-  	 });
-
-	 function openModal() {
-		 $('#send-mail-modal').modal('show');
-     }
-	 function closeModal() {
-		 $('#send-mail-modal').modal('hide');
-	 }
-	 function isValidEmail(email) {
-		 // Regular expression for email validation
-		 var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-		 // Test the email against the regular expression
-		 return emailRegex.test(email);
-	 }
-
-	   function sendMail() {
-			   let emailAddress = $("#email-address").val();
-			   let validEmail = isValidEmail(emailAddress);
-			   if (emailAddress == '') {
-				   $("#email-address-error").removeClass('d-none');
-				   setTimeout(() => {
-					   $("#email-address-error").addClass('d-none');
-				   }, 2500);
-			   } else if (emailAddress != '' && !validEmail) {
-				   $("#email-invalid-error").removeClass('d-none');
-				   setTimeout(() => {
-					   $("#email-invalid-error").addClass('d-none');
-				   }, 2500)
-			   } else {
-				   $.ajax({
-					   type: 'POST',
-					   url: '<?php echo $_SERVER['REQUEST_URI'] ?>',
-					   data: {email: emailAddress, action:'get_membership_id'},
-					   success: function(response) {
-						   let cleanedString = response.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
-						   const regex = /<link[^>]+>/g;
-						   const cleanJsonString = cleanedString.replace(regex, '');
-
-						   const jsonObj = JSON.parse(cleanJsonString);
-						   alert(jsonObj.msg);
-						   closeModal();
-					   }
-				   });
-			   }
-	 }
-  </script>
 <?php
 
 
